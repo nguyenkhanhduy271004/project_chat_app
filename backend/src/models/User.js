@@ -1,43 +1,49 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true,
-        lowercase: true
+  username: {
+    type: String,
+    required: function () {
+      return this.provider === "local"; 
     },
-    password: {
-        type: String,
-        required: true
+    unique: false, 
+    trim: true,
+    lowercase: true,
+  },
+  password: {
+    type: String,
+    required: function () {
+      return this.provider === "local";
     },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true,
-        lowercase: true
-    },
-    displayName: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    avatarUrl: {
-        type: String
-    },
-    avatarId: {
-        type: String
-    },
-    bio: {
-        type: String,
-        maxlength: 500
-    },
-    phone: {
-        type: String,
-        sparse: true
-    }
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+  },
+  displayName: {
+    type: String,
+    required: false, 
+    trim: true,
+  },
+  avatarUrl: { type: String },
+  avatarId: { type: String },
+  bio: {
+    type: String,
+    maxlength: 500,
+  },
+  phone: {
+    type: String,
+    sparse: true,
+  },
+  googleId: { type: String },
+  provider: {
+    type: String,
+    enum: ["local", "google"],
+    default: "local",
+  },
 }, { timestamps: true });
 
 const User = mongoose.model("User", userSchema);

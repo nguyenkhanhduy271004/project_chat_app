@@ -1,5 +1,5 @@
 
-import { loginHandler, signOutHandler, signUpHandler } from "../services/authService.js"
+import { googleLoginHandler, loginHandler, signOutHandler, signUpHandler } from "../services/authService.js"
 
 const signupController = async (req, res) => {
 
@@ -47,4 +47,23 @@ const signOutController = async (req, res) => {
     }
 }
 
-export {signupController, loginController, signOutController};
+const googleAuthCallbackController = async (req, res) => {
+  const googleUser = req.user;
+  const response = await googleLoginHandler(googleUser);
+
+  if (response.status !== 200)
+    return res.status(response.status).json({ message: response.message });
+
+  res.cookie("refreshToken", response.data.refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: parseInt(process.env.REFRESH_TOKEN_TTL),
+  });
+
+  return res.redirect(
+    `${process.env.CLIENT_URL}/login/success?token=${response.data.accessToken}`
+  );
+};
+
+export {signupController, loginController, signOutController, googleAuthCallbackController};
